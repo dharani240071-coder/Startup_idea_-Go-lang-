@@ -1,4 +1,5 @@
 services:
+  # Backend: Go Docker Service
   - type: web
     name: task-manager-go-backend
     runtime: docker
@@ -8,4 +9,17 @@ services:
       - key: PORT
         value: 8085
       - key: FIREBASE_SERVICE_ACCOUNT
-        sync: false # Set this in the Render Dashboard
+        sync: false # Set the contents of serviceAccountKey.json here in Render Dashboard
+
+  # Frontend: Static Site (as a fallback/alternative to Vercel)
+  - type: web
+    name: task-manager-frontend
+    runtime: static
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://task-manager-go-backend.onrender.com
+      - key: VITE_WS_BASE_URL
+        value: https://task-manager-go-backend.onrender.com
