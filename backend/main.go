@@ -53,7 +53,9 @@ func initFirebase() {
 
 	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
-		log.Fatalf("error initializing app: %v", err)
+		log.Fatalf("❌ FATAL: Could not initialize Firebase. \n"+
+			"If you are on Render, ensure you have set the 'FIREBASE_SERVICE_ACCOUNT' environment variable with your serviceAccountKey.json content. \n"+
+			"Error details: %v", err)
 	}
 
 	client, err := app.Firestore(ctx)
