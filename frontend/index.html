@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Startup Ideas Real-Time</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <!-- Login View -->
+    <div id="login-view" class="view active">
+      <div class="glass-card login-card">
+        <h1>Welcome Back</h1>
+        <p>Login to your ultimate startup idea notepad.</p>
+        <form id="login-form">
+          <div class="input-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Enter your name" required autocomplete="off" />
+          </div>
+          <button type="submit" class="btn-primary">Enter Dashboard</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- App View -->
+    <div id="app-view" class="view">
+      <div class="app-container">
+        <header class="app-header">
+          <div class="header-content">
+            <h2>💡 Startup Ideas</h2>
+            <div class="user-info">
+              <span id="display-username">User</span>
+              <button id="logout-btn" class="btn-secondary">Logout</button>
+            </div>
+          </div>
+        </header>
+
+        <main class="main-content">
+          <div class="glass-card compose-card">
+            <h3>Have a new idea?</h3>
+            <form id="idea-form">
+              <input type="text" id="idea-title" placeholder="Idea Title" required autocomplete="off" />
+              <textarea id="idea-description" placeholder="Describe your brilliant startup idea..." rows="3" required></textarea>
+              <button type="submit" class="btn-primary">Add Idea</button>
+            </form>
+          </div>
+
+          <div class="ideas-feed">
+            <h3>Recent Ideas</h3>
+            <div id="ideas-list" class="ideas-grid">
+              <!-- Ideas will be dynamically injected here in real-time -->
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

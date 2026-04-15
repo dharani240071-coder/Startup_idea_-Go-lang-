@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: task-manager-go-backend
+    runtime: docker
+    dockerContext: ./backend
+    plan: free
+    envVars:
+      - key: PORT
+        value: 8085
+      - key: FIREBASE_SERVICE_ACCOUNT
+        sync: false # Set this in the Render Dashboard
