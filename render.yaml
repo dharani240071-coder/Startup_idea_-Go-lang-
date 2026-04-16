@@ -1,7 +1,7 @@
 services:
   # Backend: Native Go Service
   - type: web
-    name: startup-idea-backend
+    name: startup-idea-go-backend
     runtime: go
     buildCommand: cd backend && go build -o main .
     startCommand: ./backend/main
@@ -14,13 +14,13 @@ services:
 
   # Frontend: Static Site
   - type: web
-    name: startup-idea-frontend
+    name: startup-idea-go-frontend
     runtime: static
     plan: free
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
     envVars:
       - key: VITE_API_BASE_URL
-        value: https://startup-idea-backend.onrender.com
+        value: https://startup-idea-go-backend.onrender.com
       - key: VITE_WS_BASE_URL
-        value: https://startup-idea-backend.onrender.com
+        value: https://startup-idea-go-backend.onrender.com
