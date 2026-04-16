@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // State
   let currentUser = localStorage.getItem('notetaker_user');
   const wsService = new WebSocketService();
+  const statusIndicator = document.getElementById('connection-status');
 
   // Initialization
   if (currentUser) {
@@ -63,6 +64,16 @@ document.addEventListener('DOMContentLoaded', () => {
     appendIdeaToDOM(idea, true);
   });
 
+  wsService.onStatusChange((status) => {
+    statusIndicator.className = 'status-indicator ' + status;
+    statusIndicator.title = 'Status: ' + status.charAt(0).toUpperCase() + status.slice(1);
+    
+    // If we reconnect, refresh the list to make sure we didn't miss anything
+    if (status === 'connected') {
+        fetchExistingIdeas();
+    }
+  });
+
   // Functions
   function showLoginView() {
     appView.classList.remove('active');
@@ -75,11 +86,8 @@ document.addEventListener('DOMContentLoaded', () => {
     appView.classList.add('active');
     
     // Connect websocket logic if not already connected
-    if (!wsService.client || !wsService.client.connected) {
-      wsService.connect(() => {
-        // On connection, fetch all existing ideas via REST API
-        fetchExistingIdeas();
-      });
+    if (wsService.status === 'disconnected') {
+      wsService.connect();
     }
   }
 
@@ -106,20 +114,36 @@ document.addEventListener('DOMContentLoaded', () => {
         ideasList.innerHTML = '';
     }
 
-    const item = document.createElement('div');
+    // Check if item already exists in the list (to avoid duplicates or update content)
+    let item = document.querySelector(`.idea-item[data-id="${idea.id}"]`);
+    const dateStr = new Date(idea.timestamp).toLocaleString();
+    const innerHTML = `
+      <div class="idea-header">${idea.title}</div>
+      <div class="idea-body">${idea.description}</div>
+      <div class="idea-meta">${dateStr}</div>
+    `;
+
+    if (item) {
+        // Update existing item
+        item.innerHTML = innerHTML;
+        if (isNew) {
+            item.classList.add('new-idea');
+            setTimeout(() => item.classList.remove('new-idea'), 2000);
+        }
+        return;
+    }
+
+    // Create new item
+    item = document.createElement('div');
     item.className = 'idea-item';
+    item.setAttribute('data-id', idea.id);
+    
     if (isNew) {
         item.classList.add('new-idea');
         setTimeout(() => item.classList.remove('new-idea'), 2000);
     }
 
-    const dateStr = new Date(idea.timestamp).toLocaleString();
-
-    item.innerHTML = `
-      <div class="idea-header">${idea.title}</div>
-      <div class="idea-body">${idea.description}</div>
-      <div class="idea-meta">${dateStr}</div>
-    `;
+    item.innerHTML = innerHTML;
 
     // Prepend to show newest first!
     ideasList.prepend(item);

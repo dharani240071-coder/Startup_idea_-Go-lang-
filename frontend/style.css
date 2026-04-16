@@ -194,6 +194,36 @@ button {
   font-weight: 600;
 }
 
+/* Connection Status Indicator */
+.status-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.status-indicator.connected {
+  background-color: #10b981; /* Emerald 500 */
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+
+.status-indicator.connecting {
+  background-color: #f59e0b; /* Amber 500 */
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+  animation: pulse 1s infinite;
+}
+
+.status-indicator.disconnected {
+  background-color: #ef4444; /* Red 500 */
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
 .compose-card {
   margin-bottom: 3rem;
   background: var(--color-surface-hover);

@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 )
 
@@ -64,6 +65,44 @@ func initFirebase() {
 	}
 	firestoreClient = client
 	fmt.Println("🔥 Firebase Init Successful")
+}
+
+func watchFirestore() {
+	ctx := context.Background()
+	// Watch the "ideas" collection for any changes
+	iter := firestoreClient.Collection("ideas").Snapshots(ctx)
+	defer iter.Stop()
+
+	fmt.Println("👀 Firestore Watcher Started")
+
+	for {
+		snap, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Printf("❌ Firestore snapshot error: %v", err)
+			continue
+		}
+
+		for _, change := range snap.Changes {
+			// We only care about additions and modifications for now
+			if change.Kind == firestore.DocumentAdded || change.Kind == firestore.DocumentModified {
+				var idea Idea
+				if err := change.Doc.DataTo(&idea); err != nil {
+					log.Printf("Error unmarshaling idea: %v", err)
+					continue
+				}
+				// Ensure ID is set (fallback to document ID if missing in data)
+				if idea.ID == "" {
+					idea.ID = change.Doc.Ref.ID
+				}
+				
+				// Broadcast the change to all connected WebSocket clients
+				broadcast <- idea
+			}
+		}
+	}
 }
 
 func handleMessages() {
@@ -149,12 +188,15 @@ func main() {
 				continue
 			}
 
-			// Broadcast
-			broadcast <- idea
+			// We don't manually broadcast here anymore because 
+			// the firestoreClient.Collection("ideas").Doc(idea.ID).Set(...) 
+			// call above will trigger our Firestore Snapshot listener, 
+			// which will then broadcast to all clients.
 		}
 	})
 
 	go handleMessages()
+	go watchFirestore()
 
 	port := os.Getenv("PORT")
 	if port == "" {
